@@ -19,7 +19,7 @@
 
 class LineFollower{
 public:
-    int start(int, acquisition, UART, bool, bool);
+    int start(int, acquisition, UART, bool, bool, int);
 private:
     void errorMatch(int, int);
     void errorContour(int);

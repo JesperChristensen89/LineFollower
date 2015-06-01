@@ -23,6 +23,7 @@ int endOfLine = 0;
 vector<vector<Point> > contours;
 vector<vector<Point> > contour_prev;
 int imgError = 0;
+bool err = false;
 
 void LineFollower::errorMatch(int im, int i)
 {
@@ -36,6 +37,8 @@ void LineFollower::errorMatch(int im, int i)
         {
             endOfLine = endOfLine + 1;
             
+            err = true;
+
             printf("** Match error **");
 
             /*
@@ -64,14 +67,12 @@ void LineFollower::errorContour(int im)
     if (k == 0)
         {
             endOfLine = endOfLine + 1;
+
+            err = true;
             
             printf("** Contour error **");
             
-            /*
-            char errStr2[50];
-            sprintf(errStr2,"img/imgERR%d.jpg",im);
-            imwrite(errStr2,img);
-            */
+            
              
             if (im - imgError >= 4)
             {
@@ -82,11 +83,13 @@ void LineFollower::errorContour(int im)
 }
 
 
-int LineFollower::start(int nCount,acquisition cam, UART uart, bool turnLeft, bool black)
+int LineFollower::start(int nCount,acquisition cam, UART uart, bool turnLeft, bool black, int errThresh)
 {
     Control control;
     
     int angle = 0;
+    int anglePrev = 0;
+
         
     int frames = 0;
                 
@@ -95,6 +98,8 @@ int LineFollower::start(int nCount,acquisition cam, UART uart, bool turnLeft, bo
     
     for ( int im=0; im<nCount; im++ ) 
     {
+        anglePrev = angle;
+
         cout << "\nImage: "<<im << "/" << nCount<< " ";
         
         // read image
@@ -112,7 +117,8 @@ int LineFollower::start(int nCount,acquisition cam, UART uart, bool turnLeft, bo
         // Blur
         Mat img_blur;
         GaussianBlur(img_gray, img_blur, Size(9, 9), 2);
-        
+            
+
         // Threshold
         Mat img_thresh;
 
@@ -120,6 +126,7 @@ int LineFollower::start(int nCount,acquisition cam, UART uart, bool turnLeft, bo
         threshType = black ? THRESH_BINARY_INV | THRESH_OTSU : THRESH_BINARY | THRESH_OTSU;
         
         threshold(img_blur, img_thresh, 0, 255, threshType);
+            
         
         // Opening (reduces noise)
         Mat kernel(5,5, CV_8UC1,1);
@@ -185,9 +192,20 @@ int LineFollower::start(int nCount,acquisition cam, UART uart, bool turnLeft, bo
         
         // if k = 0 no contour was found -> error
         errorContour(im);
+
+        /*
+        if (err)
+        {
+            char errStr2[50];
+            sprintf(errStr2,"../img/imgERR%d.jpg",im);
+            imwrite(errStr2,img);
+            printf("saved");
+            
+        }
+        */  
         
         // error routine
-        if (endOfLine == 6)
+        if (endOfLine == errThresh)
         {
             cout << "\n### REACHED END OF LINE ### ( or made an error :-) )" << endl;
             endOfLine = 0;
@@ -257,11 +275,17 @@ int LineFollower::start(int nCount,acquisition cam, UART uart, bool turnLeft, bo
         {
             angle = control.regulator(rightmostEdge, img.cols/2) ;
         }
+
+       
+        // angle = err ? anglePrev : angle;
+
+
         
-        /*
+        
         // if you uncomment this save section the FPS
         // of the application will drop from 30 to 10
         // can be used as debugging
+        /*
         char str2[50];
         sprintf(str2,"../img/imgRes%d.jpg",im);
         imwrite(str2,img);
@@ -274,9 +298,14 @@ int LineFollower::start(int nCount,acquisition cam, UART uart, bool turnLeft, bo
         snprintf (angleStr,10,"%d\n",angle);
         uart.send(angleStr);
 
+        
+        
+
         //cout<<"Reg angle: " << angleStr;
 
         frames = im;
+        err = false;
+
         
     }
     

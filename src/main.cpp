@@ -30,6 +30,7 @@ UART uart;
 bool turnLeft = true;
 
 int nCount = 60000;
+int errThresh = 4;
 bool black = true;
 
 
@@ -75,6 +76,15 @@ void *inputThread(void *parameters){
             cout << "RegBot will run untill " << nCount <<" frames have been captured" << endl;
 
         }
+        else if (str.compare(0,4,"err=") == 0)
+        {
+            char numberOfErrs[4];
+            size_t lengthErr = str.copy(numberOfErrs,str.size()-4,4);
+            numberOfErrs[lengthErr] = '\0';
+            errThresh = atoi(numberOfErrs);
+
+            cout << "RegBot error thresh is set to: " << errThresh << endl;
+        }
         else if (str == "black")
         {
             black = true;
@@ -95,7 +105,10 @@ void *inputThread(void *parameters){
                 endl << 
                 "linemode=xxxx:        regbot will run till xxxx frames have been captured" 
                 << endl << "black:                regbot will run on black lines [default]" << endl
-                << "white:                regbot will run on white lines" <<endl << endl
+                << "white:                regbot will run on white lines" <<endl 
+                << "err=xx:               sets a threshold on how many errors the robot" << endl 
+                << "                      can make before stopping" << " - if it fails during turns," << endl
+                << "                      this variable probably needs to go up! [default = 4]" << endl << endl
                 << "        ### ######## ###" << endl << endl;
         }
         
@@ -171,7 +184,7 @@ int main( int, char** argv )
             time ( &timer_begin );
             
             // run lineFollower routine
-            frames = lineFollower.start(nCount, cam, uart, turnLeft, black);
+            frames = lineFollower.start(nCount, cam, uart, turnLeft, black, errThresh);
     
             // this will be stop mission signal to regbot
             uart.send((char *)"998\n");

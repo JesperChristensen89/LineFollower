@@ -48,6 +48,26 @@ stdio.h
 stdlib.h
 -
 
+/home/pi/robot_vis/line_detection/src/main.cpp
+iostream
+-
+stdio.h
+-
+stdlib.h
+-
+ctime
+-
+unistd.h
+-
+algorithm
+-
+acquisition.h
+/home/pi/robot_vis/line_detection/src/acquisition.h
+UART.h
+/home/pi/robot_vis/line_detection/src/UART.h
+LineFollower.h
+/home/pi/robot_vis/line_detection/src/LineFollower.h
+
 /usr/local/include/opencv/cxcore.h
 opencv2/core/core_c.h
 /usr/local/include/opencv/opencv2/core/core_c.h
