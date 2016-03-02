@@ -31,7 +31,7 @@ UART uart;
 
 bool turnLeft = true;
 
-int nCount = 60000;
+int nCount = 60100;
 bool black = true;
 
 
