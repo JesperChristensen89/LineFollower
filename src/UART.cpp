@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string>
 #include <cstring>
+#include <unistd.h>
 
 
 int uart0_filestream = -1;
