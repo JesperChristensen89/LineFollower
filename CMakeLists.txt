@@ -4,6 +4,7 @@ set(CMAKE_MODULE_PATH "/usr/local/lib/cmake/${CMAKE_MODULE_PATH}")
 project( line_detection )
 find_package(raspicam REQUIRED)
 find_package( OpenCV )
+find_package(Threads)
 IF (OpenCV_FOUND AND raspicam_CV_FOUND)
 
 	
@@ -22,7 +23,7 @@ IF (OpenCV_FOUND AND raspicam_CV_FOUND)
 	include_directories( ${OpenCV_INCLUDE_DIRS} ${line_INCLUDE_DIRS} )
 
 	add_executable( line_detection ${line_SOURCES})
-	target_link_libraries( line_detection ${raspicam_CV_LIBS})
+	target_link_libraries( line_detection ${raspicam_CV_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 
 
